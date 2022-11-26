@@ -150,9 +150,9 @@ vec3_t bary(tri_t t, vec3_t p)
 
 int main()
 {
-	vec3_t a = vec3_init(2, 1, 0);
+	vec3_t a = vec3_init(1.75, 0.75, 0);
 	vec3_t b = vec3_init(2.5, 2, 0);
-	vec3_t c = vec3_init(3, 1, 0);
+	vec3_t c = vec3_init(3.25, 0.75, 0);
 	vec3_t o = vec3_scale(vec3_add(vec3_add(a, b), c), 0.3333333333);
 	tri_t t = tri_init(a, b, c);
 
@@ -161,14 +161,14 @@ int main()
 	vec3_t c_bary = bary(t, c); 
 	vec3_t o_bary = bary(t, o);
 
-	printf
+	/*printf
 	(
 		"CENTROID: <%f, %f, %f>\nA: <%f, %f, %f>\nB: <%f, %f, %f>\nC: <%f, %f, %f>\n",
 		o_bary.x, o_bary.y, o_bary.z,
 		a_bary.x, a_bary.y, a_bary.z,
 		b_bary.x, b_bary.y, b_bary.z,
 		c_bary.x, c_bary.y, c_bary.z
-	);
+	);*/
 
 	int width = 1920;
 	int height = 1080;
@@ -195,8 +195,9 @@ int main()
 				uvw.z >= 0 && uvw.z <= 1
 			)
 			{
+				// printf("ROW: %d COL: %d\n<%f,%f,%f>\n", row, col, p.x, p.y, p.z);
 				colour_t colour = { 255*uvw.x, 255*uvw.y, 255*uvw.z, 255};
-				BMP_set_pixel(bmp, row, col, colour);
+				BMP_set_pixel(bmp, col, row, colour);
 			}
 	
 			x += dp;
