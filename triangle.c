@@ -2,7 +2,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <string.h>
+#include <stdlib.h>
 #include "bmp.h"
+#include "linalg.h"
 
 // THE BASICS
 
@@ -15,11 +18,11 @@ typedef struct
 
 vec3_t vec3_init(double x, double y, double z)
 {
-	vec3_t result;
-	result.x = x;
-	result.y = y;
-	result.z = z;
-	return result;
+	vec3_t v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	return v;
 }
 
 bool vec3_equal(vec3_t a, vec3_t b)
@@ -34,29 +37,29 @@ double vec3_norm(vec3_t a)
 
 vec3_t vec3_scale(vec3_t a, double s)
 {
-	vec3_t result;
-	result.x = a.x * s;
-	result.y = a.y * s;
-	result.z = a.z * s;
-	return result;
+	vec3_t v;
+	v.x = a.x * s;
+	v.y = a.y * s;
+	v.z = a.z * s;
+	return v;
 }
 
 vec3_t vec3_add(vec3_t a, vec3_t b)
 {
-	vec3_t result;
-	result.x = a.x + b.x;
-	result.y = a.y + b.y;
-	result.z = a.z + b.z;
-	return result;
+	vec3_t v;
+	v.x = a.x + b.x;
+	v.y = a.y + b.y;
+	v.z = a.z + b.z;
+	return v;
 }
 
 vec3_t vec3_sub(vec3_t a, vec3_t b)
 {
-	vec3_t result;
-	result.x = a.x - b.x;
-	result.y = a.y - b.y;
-	result.z = a.z - b.z;
-	return result;
+	vec3_t v;
+	v.x = a.x - b.x;
+	v.y = a.y - b.y;
+	v.z = a.z - b.z;
+	return v;
 }
 
 vec3_t vec3_unit(vec3_t a)
@@ -67,11 +70,11 @@ double vec3_dot(vec3_t a, vec3_t b)
 
 vec3_t vec3_cross(vec3_t a, vec3_t b)
 {
-	vec3_t result;
-	result.x = a.y * b.z - b.y * a.z;
-	result.y = a.z * b.x - b.z * a.x;
-	result.z = a.x * b.y - b.x * a.y;
-	return result;
+	vec3_t v;
+	v.x = a.y * b.z - b.y * a.z;
+	v.y = a.z * b.x - b.z * a.x;
+	v.z = a.x * b.y - b.x * a.y;
+	return v;
 }
 
 typedef struct
@@ -83,11 +86,11 @@ typedef struct
 
 tri_t tri_init(vec3_t a, vec3_t b, vec3_t c)
 {
-	tri_t result;
-	result.a = a;
-	result.b = b;
-	result.c = c;
-	return result;
+	tri_t t;
+	t.a = a;
+	t.b = b;
+	t.c = c;
+	return t;
 }
 
 bool tri_equal(tri_t a, tri_t b)
@@ -95,10 +98,44 @@ bool tri_equal(tri_t a, tri_t b)
 	return vec3_equal(a.a, b.a) && vec3_equal(a.b, b.b) && vec3_equal(a.c, b.c);
 }
 
-// FUCK SHIT STARTS HERE
+typedef struct
+{
+	double x[4];
+} mat2x2_t;
 
-double mat2_det(double a, double b, double c, double d)
-{ return a*d - c*b; }
+mat2x2_t mat2x2_init(double x11, double x12, double x21, double x22)
+{
+	mat2x2_t m;
+	m.x[0] = x11; m.x[1] = x12;
+	m.x[2] = x21; m.x[3] = x22;
+	return m;
+}
+
+double mat2x2_det(mat2x2_t m)
+{
+	return m.x[0] * m.x[3] - m.x[2] * m.x[1];
+}
+
+typedef struct
+{
+	double x[16];
+} mat4x4_t;
+
+mat4x4_t mat4x4_init
+(
+ 	double x11, double x12, double x13, double x14,
+	double x21, double x22, double x23, double x24,
+	double x31, double x32, double x33, double x34,
+	double x41, double x42, double x43, double x44
+)
+{
+	mat4x4_t m;
+ 	m.x[0] = x11; m.x[1] = x12; m.x[2] = x13; m.x[3] = x14;
+	m.x[4] = x21; m.x[5] = x22; m.x[6] = x23; m.x[7] = x24;
+	m.x[8] = x31; m.x[9] = x32; m.x[10] = x33; m.x[11] = x34;
+	m.x[12] = x41; m.x[13] = x42; m.x[14] = x43; m.x[15] = x44;
+	return m;
+}
 
 vec3_t bary(tri_t t, vec3_t p)
 {
@@ -108,52 +145,47 @@ vec3_t bary(tri_t t, vec3_t p)
 
 	// t_1 = v(v_0 * v_0) + w(v_1 * v_0) = v_2 * v_0
 	// t_2 = v(v_0 * v_1) + w(v_1 * v_1) = v_2 * v_1
-	
-	double dot_00 = vec3_dot(v_0, v_0);
-	double dot_10 = vec3_dot(v_1, v_0);
-	double dot_20 = vec3_dot(v_2, v_0);
-	double dot_01 = vec3_dot(v_0, v_1);
-	double dot_11 = vec3_dot(v_1, v_1);
-	double dot_21 = vec3_dot(v_2, v_1);
-
 	// T = sans-solution row picture of t_1,t_2 system
 	// T_x, T_y = T where x,y column = solution column
 
-	double T_11 = dot_00;
-	double T_12 = dot_10;
-	double T_21 = dot_01;
-	double T_22 = dot_11;
+	mat2x2_t T = mat2x2_init
+	(
+		vec3_dot(v_0, v_0), vec3_dot(v_1, v_0),
+		vec3_dot(v_0, v_1), vec3_dot(v_1, v_1)
+	);
+
+	mat2x2_t T_u = T;
+	T_u.x[0] = vec3_dot(v_2, v_0); T_u.x[2] = vec3_dot(v_2, v_1);
+
+	mat2x2_t T_v = T;
+	T_v.x[1] = vec3_dot(v_2, v_0); T_v.x[3] = vec3_dot(v_2, v_1);
 	
-	double T_u_11 = dot_20;
-	double T_u_12 = dot_10;
-	double T_u_21 = dot_21;
-	double T_u_22 = dot_11;
-
-	double T_v_11 = dot_00;
-	double T_v_12 = dot_20;
-	double T_v_21 = dot_01;
-	double T_v_22 = dot_21;
-
-	double d_T = mat2_det(T_11, T_12, T_21, T_22);
-	double d_T_u = mat2_det(T_u_11, T_u_12, T_u_21, T_u_22);
-	double d_T_v = mat2_det(T_v_11, T_v_12, T_v_21, T_v_22);
+	double T_det = mat2x2_det(T);
+	double T_u_det = mat2x2_det(T_u);
+	double T_v_det = mat2x2_det(T_v);
 
 	// We're ready to apply Cramer's law and calculate our barycentric coefficients
 	
-	double u = d_T_u / d_T;
-	double v = d_T_v / d_T;
+	double u = T_u_det / T_det;
+	double v = T_v_det / T_det;
 	double w = 1 - u - v;
 
 	return vec3_init(u, v, w);
 }
 
+vec3_t unbary(tri_t t, vec3_t p)
+{
+	return vec3_add(vec3_add(vec3_scale(t.a, p.x), vec3_scale(t.b, p.y)), vec3_scale(t.c, p.z));
+}
 
-int main()
+
+int main(int argc, char** argv)
 {
 	vec3_t a = vec3_init(1.75, 0.75, 0);
 	vec3_t b = vec3_init(2.5, 2, 0);
 	vec3_t c = vec3_init(3.25, 0.75, 0);
 	vec3_t o = vec3_scale(vec3_add(vec3_add(a, b), c), 0.3333333333);
+	
 	tri_t t = tri_init(a, b, c);
 
 	vec3_t a_bary = bary(t, a);
@@ -161,17 +193,17 @@ int main()
 	vec3_t c_bary = bary(t, c); 
 	vec3_t o_bary = bary(t, o);
 
-	/*printf
+	printf
 	(
 		"CENTROID: <%f, %f, %f>\nA: <%f, %f, %f>\nB: <%f, %f, %f>\nC: <%f, %f, %f>\n",
 		o_bary.x, o_bary.y, o_bary.z,
 		a_bary.x, a_bary.y, a_bary.z,
 		b_bary.x, b_bary.y, b_bary.z,
 		c_bary.x, c_bary.y, c_bary.z
-	);*/
+	);
 
-	int width = 1920;
-	int height = 1080;
+	int width = atoi(argv[1]);
+	int height = atoi(argv[2]);
 	double ratio = (double) width / (double) height;
 	double X = 5;
 	double Y = X / ratio;	
