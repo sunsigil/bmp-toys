@@ -110,7 +110,7 @@ mat4_t mat4_row_init(vec4_t r1, vec4_t r2, vec4_t r3, vec4_t r4)
 	return m;
 }
 
-mat4_t mat4_row_init(vec4_t c1, vec4_t c2, vec4_t c3, vec4_t c4)
+mat4_t mat4_col_init(vec4_t c1, vec4_t c2, vec4_t c3, vec4_t c4)
 {
 	mat4_t m;
 	m.data[0][0] = c1.x; m.data[0][1] = c2.x; m.data[0][2] = c3.x; m.data[0][3] = c4.x;
@@ -132,7 +132,7 @@ vec3_t mat3_get_row(mat3_t A, int i)
 
 vec4_t mat4_get_row(mat4_t A, int i)
 {
-	return vec3_init(A.data[i][0], A.data[i][1], A.data[i][2], A.data[i][3]);
+	return vec4_init(A.data[i][0], A.data[i][1], A.data[i][2], A.data[i][3]);
 }
 
 vec2_t mat2_get_col(mat2_t A, int i)
@@ -147,7 +147,7 @@ vec3_t mat3_get_col(mat3_t A, int i)
 
 vec4_t mat4_get_col(mat4_t A, int i)
 {
-	return vec3_init(A.data[0][i], A.data[1][i], A.data[2][i], A.data[3][i]);
+	return vec4_init(A.data[0][i], A.data[1][i], A.data[2][i], A.data[3][i]);
 }
 
 bool vec2_eq(vec2_t u, vec2_t v)
@@ -175,7 +175,7 @@ double vec3_norm(vec3_t u)
 	return sqrt(u.x * u.x + u.y * u.y + u.z * u.z);
 }
 
-double vec3_norm(vec4_t u)
+double vec4_norm(vec4_t u)
 {
 	return sqrt(u.x * u.x + u.y * u.y + u.z * u.z + u.w * u.w);
 }
@@ -279,22 +279,56 @@ double vec4_dot(vec4_t u, vec4_t v)
 vec3_t cross(vec3_t u, vec3_t v)
 {
 	vec3_t w;
-	w.x = u.y * b.z - u.z * b.y;
-	w.y = u.z * b.x - u.x * b.z;
-	w.z = u.x * b.y - u.y * b.x;
+	w.x = u.y * v.z - u.z * v.y;
+	w.y = u.z * v.x - u.x * v.z;
+	w.z = u.x * v.y - u.y * v.x;
 	return w;
 }
 
 mat2_t mat2_mul(mat2_t A, mat2_t B)
 {
 	mat2_t C;
-	C.data[0][0] = vec2_dot(mat2_get_row(A, 0), mat2_get_col(A, 0));
-	C.data[0][1] = vec2_dot(mat2_get_row(A, 0), mat2_get_col(A, 1));
-	C.data[1][0] = vec2_dot(mat2_get_row(A, 1), mat2_get_col(A, 0));
-	C.data[1][1] = vec2_dot(mat2_get_row(A, 1), mat2_get_col(A, 1));
+	C.data[0][0] = vec2_dot(mat2_get_row(A, 0), mat2_get_col(B, 0));
+	C.data[0][1] = vec2_dot(mat2_get_row(A, 0), mat2_get_col(B, 1));
+	C.data[1][0] = vec2_dot(mat2_get_row(A, 1), mat2_get_col(B, 0));
+	C.data[1][1] = vec2_dot(mat2_get_row(A, 1), mat2_get_col(B, 1));
 	return C;
 }
 
-mat3_t mat3_mul(mat3_t A, mat3_t B);
-mat4_t mat4_mul(mat4_t A, mat4_t B);
+mat3_t mat3_mul(mat3_t A, mat3_t B)
+{
+	mat3_t C;
+	C.data[0][0] = vec3_dot(mat3_get_row(A, 0), mat3_get_col(B, 0));
+	C.data[0][1] = vec3_dot(mat3_get_row(A, 0), mat3_get_col(B, 1));
+	C.data[0][2] = vec3_dot(mat3_get_row(A, 0), mat3_get_col(B, 2));
+	C.data[1][0] = vec3_dot(mat3_get_row(A, 1), mat3_get_col(B, 0));
+	C.data[1][1] = vec3_dot(mat3_get_row(A, 1), mat3_get_col(B, 1));
+	C.data[1][2] = vec3_dot(mat3_get_row(A, 1), mat3_get_col(B, 2));
+	C.data[2][0] = vec3_dot(mat3_get_row(A, 2), mat3_get_col(B, 0));
+	C.data[2][1] = vec3_dot(mat3_get_row(A, 2), mat3_get_col(B, 1));
+	C.data[2][2] = vec3_dot(mat3_get_row(A, 2), mat3_get_col(B, 2));
+	return C;
+}
+
+mat4_t mat4_mul(mat4_t A, mat4_t B)
+{
+	mat4_t C;
+	C.data[0][0] = vec4_dot(mat4_get_row(A, 0), mat4_get_col(B, 0));
+	C.data[0][1] = vec4_dot(mat4_get_row(A, 0), mat4_get_col(B, 1));
+	C.data[0][2] = vec4_dot(mat4_get_row(A, 0), mat4_get_col(B, 2));
+	C.data[0][3] = vec4_dot(mat4_get_row(A, 0), mat4_get_col(B, 3));
+	C.data[1][0] = vec4_dot(mat4_get_row(A, 1), mat4_get_col(B, 0));
+	C.data[1][1] = vec4_dot(mat4_get_row(A, 1), mat4_get_col(B, 1));
+	C.data[1][2] = vec4_dot(mat4_get_row(A, 1), mat4_get_col(B, 2));
+	C.data[1][3] = vec4_dot(mat4_get_row(A, 1), mat4_get_col(B, 3));
+	C.data[2][0] = vec4_dot(mat4_get_row(A, 2), mat4_get_col(B, 0));
+	C.data[2][1] = vec4_dot(mat4_get_row(A, 2), mat4_get_col(B, 1));
+	C.data[2][2] = vec4_dot(mat4_get_row(A, 2), mat4_get_col(B, 2));
+	C.data[2][3] = vec4_dot(mat4_get_row(A, 2), mat4_get_col(B, 3));
+	C.data[3][0] = vec4_dot(mat4_get_row(A, 3), mat4_get_col(B, 0));
+	C.data[3][1] = vec4_dot(mat4_get_row(A, 3), mat4_get_col(B, 1));
+	C.data[3][2] = vec4_dot(mat4_get_row(A, 3), mat4_get_col(B, 2));
+	C.data[3][3] = vec4_dot(mat4_get_row(A, 3), mat4_get_col(B, 3));
+	return C;
+}
 
