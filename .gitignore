@@ -1,4 +1,11 @@
+*.DS_Store
 *.bmp
 *.out
 *.o
 *.swp
+*.obj
+*.dSYM
+
+img/*
+mesh/*
+makefile

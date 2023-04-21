@@ -1,0 +1,2 @@
+make tinyrenderer
+./tinyrenderer.out
