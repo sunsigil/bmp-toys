@@ -8,16 +8,16 @@
 
 mat_t mat_init(int m, int n)
 {
-	if(m*n > 16)
+	if(m*n > MAT_MAX_SIZE)
 	{
-		puts("[mat_init] product of matrix dimensions (m x n) may not exceed 16");
+		printf("[mat_init] product of matrix dimensions (m x n) may not exceed %d\n", MAT_MAX_SIZE);
 		exit(EXIT_FAILURE);
 	}
 
 	mat_t A;
 	A.m = m;
 	A.n = n;
-	memset(A.data, 0, 16 * sizeof(double));
+	memset(A.data, 0, MAT_MAX_SIZE * sizeof(double));
 
 	return A;
 }
@@ -62,6 +62,30 @@ mat_t mat_id(int m)
 	}
 
 	return A;
+}
+
+mat_t mat_set(mat_t A, int i, int j, double x)
+{
+	if(i >= A.m || j >= A.n)
+	{
+		puts("[mat_set] row of column index out of bounds");
+		exit(EXIT_FAILURE);
+	}
+
+	A.data[i * A.n + j] = x;
+
+	return A;
+}
+
+double mat_get(mat_t A, int i, int j)
+{
+	if(i >= A.m || j >= A.n)
+	{
+		puts("[mat_set] row of column index out of bounds");
+		exit(EXIT_FAILURE);
+	}
+
+	return A.data[i * A.n + j];
 }
 
 mat_t mat_set_row(mat_t A, int i, mat_t R)
@@ -146,11 +170,11 @@ mat_t mat_trans(mat_t A)
 {
 	mat_t AT = mat_init(A.n, A.m);
 
-	for(int i = 0; i < A.m; i++)
+	for(int i = 0; i < A.n; i++)
 	{
-		for(int j = 0; j < A.n; j++)
+		for(int j = 0; j < A.m; j++)
 		{
-			AT.data[i * AT.n + j] = A.data[j * A.n + i];
+			AT.data[i * A.m + j] = A.data[j * A.n + i];
 		}
 	}
 
@@ -221,7 +245,7 @@ mat_t mat_mul(mat_t A, mat_t B)
 			double sum = 0;
 			for(int k = 0; k < A.n; k++)
 			{
-				sum += A.data[i * A.n + k] * B.data[k * B.m + j];
+				sum += A.data[i * A.n + k] * B.data[k * B.n+ j];
 			}
 			C.data[i * C.n + j] = sum;
 		}

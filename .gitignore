@@ -1,11 +1,12 @@
 *.DS_Store
-*.bmp
 *.out
 *.o
 *.swp
-*.obj
 *.dSYM
 
+makefile
 img/*
 mesh/*
-makefile
+
+obj/*
+linalg/test.c

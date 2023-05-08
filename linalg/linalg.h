@@ -1,11 +1,14 @@
 #ifndef LINALG_H
 #define LINALG_H
 
+#define MAT_MAX_SIZE 16 
+
 typedef struct mat
 {
 	int m;
 	int n;
-	double data[16];
+
+	double data[MAT_MAX_SIZE];
 } mat_t;
 
 mat_t mat_init(int m, int n);
@@ -13,6 +16,8 @@ mat_t mat_col(int m, ...);
 mat_t mat_row(int n, ...);
 mat_t mat_id(int m);
 
+mat_t mat_set(mat_t A, int i, int j, double x);
+double mat_get(mat_t A, int i, int j);
 mat_t mat_set_row(mat_t A, int i, mat_t R);
 mat_t mat_set_col(mat_t A, int j, mat_t C);
 mat_t mat_get_row(mat_t A, int i);

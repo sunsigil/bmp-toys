@@ -40,7 +40,7 @@ void line(BMP_t* bmp, colour_t c, int x0, int y0, int x1, int y1)
 
 	int y = y0;
 	int err = 0;
-	// if line is steep, we swap x.data[1] in the draw call to undo our earlier transposition
+	// if line is steep, we swap x,y in the draw call to undo our earlier transposition
 	if(steep)
 	{
 		for(int x = x0; x < x1; x++)
@@ -91,11 +91,42 @@ void fill_tri(BMP_t* bmp, colour_t clr, mat_t tri)
 	mat_t b = mat_get_row(tri, 1);
 	mat_t c = mat_get_row(tri, 2);
 	
-	tri = mat_init(3, 3);
-	tri = mat_set_row(tri, 0, a);
-	tri = mat_set_row(tri, 1, b);
-	tri = mat_set_row(tri, 2, c);
-	tri = mat_set_col(tri, 2, mat_col(3, 0, 0, 0));
+	double min_x = fmin(fmin(a.data[0], b.data[0]), c.data[0]);
+	double max_x = fmax(fmax(a.data[0], b.data[0]), c.data[0]);
+	double min_y = fmin(fmin(a.data[1], b.data[1]), c.data[1]);
+	double max_y = fmax(fmax(a.data[1], b.data[1]), c.data[1]);
+
+	for(int y = min_y; y < max_y; y++)
+	{
+		if(y < 0 || y >= bmp->height)
+		{ continue; }
+
+		for(int x = min_x; x < max_x; x++)
+		{
+			if(x < 0 || x >= bmp->width)
+			{ continue; }
+
+			mat_t p = mat_row(3, (double) x, (double) y, 0);
+			mat_t p_bary = barycentric(tri, p);
+				
+			if
+			(
+				p_bary.data[0] >= 0 && p_bary.data[0] <= 1 &&
+				p_bary.data[1] >= 0 && p_bary.data[1] <= 1 &&
+				p_bary.data[2] >= 0 && p_bary.data[2] <= 1
+			)
+			{
+				BMP_set_pixel(bmp, x, y, clr);
+			}
+		}
+	}
+}
+
+void hello_tri(BMP_t* bmp, mat_t tri) 
+{
+	mat_t a = mat_get_row(tri, 0);
+	mat_t b = mat_get_row(tri, 1);
+	mat_t c = mat_get_row(tri, 2);
 	
 	double min_x = fmin(fmin(a.data[0], b.data[0]), c.data[0]);
 	double max_x = fmax(fmax(a.data[0], b.data[0]), c.data[0]);
@@ -112,19 +143,36 @@ void fill_tri(BMP_t* bmp, colour_t clr, mat_t tri)
 			if(x < 0 || x >= bmp->width)
 			{ continue; }
 
-			mat_t p = barycentric(tri, mat_row(3, (double) x, (double) y, 0));
-			// mat_print(p);
-
+			mat_t p = mat_row(3, (double) x, (double) y, 0);
+			mat_t p_bary = barycentric(tri, p);
+			colour_t clr = { 255*p_bary.data[0], 255*p_bary.data[1], 255*p_bary.data[2], 255 };
+				
 			if
 			(
-				p.data[0] >= 0 && p.data[0] <= 1 &&
-				p.data[1] >= 0 && p.data[1] <= 1 &&
-				p.data[2] >= 0 && p.data[2] <= 1
+				p_bary.data[0] >= 0 && p_bary.data[0] <= 1 &&
+				p_bary.data[1] >= 0 && p_bary.data[1] <= 1 &&
+				p_bary.data[2] >= 0 && p_bary.data[2] <= 1
 			)
 			{
 				BMP_set_pixel(bmp, x, y, clr);
 			}
 		}
 	}
+}
+
+void wire_aabb(BMP_t* bmp, colour_t clr, mat_t aabb)
+{
+	mat_t center = mat_get_row(aabb, 0);
+	mat_t radii = mat_get_row(aabb, 1);
+
+	double min_x = center.data[0] - radii.data[0];
+	double max_x = center.data[0] + radii.data[0];
+	double min_y = center.data[1] - radii.data[1];
+	double max_y = center.data[1] + radii.data[1];
+
+	line(bmp, clr, min_x, min_y, max_x, min_y);
+	line(bmp, clr, min_x, max_y, max_x, max_y);
+	line(bmp, clr, min_x, min_y, min_x, max_y);
+	line(bmp, clr, max_x, min_y, max_x, max_y);
 }
 
