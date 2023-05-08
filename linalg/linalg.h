@@ -30,6 +30,7 @@ mat_t mat_add(mat_t A, mat_t B);
 mat_t mat_sub(mat_t A, mat_t B);
 mat_t mat_mul(mat_t A, mat_t B);
 mat_t mat_inner(mat_t A, mat_t B);
+mat_t mat_lerp(mat_t A, mat_t B, double t);
 
 double mat2_det(mat_t A);
 mat_t vec3_cross(mat_t A, mat_t B);

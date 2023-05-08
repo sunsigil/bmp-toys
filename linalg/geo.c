@@ -41,7 +41,7 @@ mat_t inverse_barycentric(mat_t tri, mat_t p)
 	return mat_add(mat_add(ua, vb), wc);
 }
 
-mat_t tri_aabb(mat_t tri)
+mat_t tri_AABB(mat_t tri)
 {
 	mat_t a = mat_get_row(tri, 0);
 	mat_t b = mat_get_row(tri, 1);
@@ -72,7 +72,7 @@ mat_t tri_aabb(mat_t tri)
 	return aabb;
 }
 
-int aabb_intersect(mat_t aabb_1, mat_t aabb_2)
+int AABB_intersect(mat_t aabb_1, mat_t aabb_2)
 {
 	mat_t c_1 = mat_get_row(aabb_1, 0);
 	mat_t c_2 = mat_get_row(aabb_2, 0);
@@ -100,3 +100,4 @@ double point_line_dist(mat_t p, mat_t a, mat_t b)
 
 	return  sqrt(apap - apab * apab / abab);
 }
+

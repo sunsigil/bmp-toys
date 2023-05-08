@@ -160,7 +160,7 @@ void hello_tri(BMP_t* bmp, mat_t tri)
 	}
 }
 
-void wire_aabb(BMP_t* bmp, colour_t clr, mat_t aabb)
+void wire_AABB(BMP_t* bmp, colour_t clr, mat_t aabb)
 {
 	mat_t center = mat_get_row(aabb, 0);
 	mat_t radii = mat_get_row(aabb, 1);

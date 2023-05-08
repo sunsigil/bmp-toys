@@ -268,6 +268,17 @@ mat_t mat_inner(mat_t A, mat_t B)
 	return C;
 }
 
+mat_t mat_lerp(mat_t A, mat_t B, double t)
+{
+	if(A.m != B.m || A.n != B.n)
+	{
+		puts("[mat_lerp] operand dimensions do not match");
+		exit(EXIT_FAILURE);
+	}
+
+	return mat_add(A, mat_scale(mat_sub(B, A), t));
+}
+
 double mat2_det(mat_t A)
 {
 	if(A.m != 2 || A.n != 2)
