@@ -9,5 +9,4 @@ makefile
 img/*
 mesh/*
 
-obj
 linalg/test.c
