@@ -3,10 +3,11 @@
 *.o
 *.swp
 *.dSYM
+*.py
 
 makefile
 img/*
 mesh/*
 
-obj/*
+obj
 linalg/test.c

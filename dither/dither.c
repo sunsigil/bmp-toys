@@ -17,9 +17,8 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 	
-	BMP_mapped_t in_bmpm = BMPM_map(argv[1]);
+	BMP_t in_bmp = BMPM_map(argv[1]);
 	// BMP_t in_bmp = BMP_read(argv[1]);
-	BMP_t in_bmp = in_bmpm.bmp;
 	BMP_t out_bmp = BMP_create(in_bmp.width, in_bmp.height, in_bmp.channels);
 
 	double* values = calloc(sizeof(double), in_bmp.width * in_bmp.height);
@@ -28,7 +27,7 @@ int main(int argc, char** argv)
 		for(int x = 0; x < in_bmp.width; x++)
 		{
 			// fprintf(stderr, "(%d, %d) ", x, y);
-			colour_t c = BMPM_get_pixel(&in_bmpm, x, y);
+			colour_t c = BMPM_get_pixel(&in_bmp, x, y);
 			values[in_bmp.width * y + x] = luminance(c) / 255.0;
 		}
 	}
@@ -56,7 +55,7 @@ int main(int argc, char** argv)
 	}
 	
 	// BMP_dispose(&in_bmp);
-	BMPM_unmap(&in_bmpm);
+	BMPM_unmap(&in_bmp);
 	BMP_write(&out_bmp, argv[2]);
 	BMP_dispose(&out_bmp);
 

@@ -42,7 +42,7 @@ window_t build_window(int x, int y, int a, int i)
 	return w;
 }
 
-sample_t build_sample(BMP_mapped_t* bmpm, window_t w)
+sample_t build_sample(BMP_t* bmp, window_t w)
 {
 	int r_sum = 0; int g_sum = 0; int b_sum = 0;
 	double lum_sum = 0;
@@ -51,15 +51,15 @@ sample_t build_sample(BMP_mapped_t* bmpm, window_t w)
 	
 	for(int y = w.y_i; y <= w.y_f; y++)
 	{
-		if(y < 0 || y >= bmpm->bmp.height)
+		if(y < 0 || y >= bmp->height)
 		{ continue; }
 
 		for(int x = w.x_i; x <= w.x_f; x++)
 		{
-			if(x < 0 || x >= bmpm->bmp.width)
+			if(x < 0 || x >= bmp->width)
 			{ continue; }
 
-			colour_t c = BMPM_get_pixel(bmpm, x, y);
+			colour_t c = BMPM_get_pixel(bmp, x, y);
 			r_sum += c.r; g_sum += c.g; b_sum += c.b;
 
 			double l = luminance(c);
@@ -102,19 +102,19 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	BMP_mapped_t in_bmpm = BMPM_map(argv[2]);
-	BMP_t out_bmp = BMP_create(in_bmpm.bmp.width, in_bmpm.bmp.height, 3);
+	BMP_t in_bmp = BMPM_map(argv[2]);
+	BMP_t out_bmp = BMP_create(in_bmp.width, in_bmp.height, 3);
 	int window_size = atoi(argv[1]);
 
-	for(int y = 0; y < in_bmpm.bmp.height; y++)
+	for(int y = 0; y < in_bmp.height; y++)
 	{
-		for(int x = 0; x < in_bmpm.bmp.width; x++)
+		for(int x = 0; x < in_bmp.width; x++)
 		{
 			sample_t samples[4];
 			for(int i = 0; i < 4; i++)
 			{
 				window_t w = build_window(x, y, window_size, i);
-				samples[i] = build_sample(&in_bmpm, w);
+				samples[i] = build_sample(&in_bmp, w);
 			}
 			sample_t s = samples[pick_sample(samples, 4)];
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	}
 	
 	BMP_write(&out_bmp, argv[3]);
-	BMPM_unmap(&in_bmpm);
+	BMPM_unmap(&in_bmp);
 	BMP_dispose(&out_bmp);
 
 	return 0;

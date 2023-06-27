@@ -5,27 +5,33 @@
 mat_t barycentric(mat_t tri, mat_t p)
 {
 	// Real-Time Collision Detection, Christer Ericson
-	mat_t a = mat_get_row(tri, 0);
-	mat_t b = mat_get_row(tri, 1);
-	mat_t c = mat_get_row(tri, 2);
+	
+	double* a = tri.data;
+	double* b = a+4;
+	double* c = b+4;
+	double* pp = p.data;
 
-	mat_t v0 = mat_sub(b, a);
-	mat_t v1 = mat_sub(c, a);
-	mat_t v2 = mat_sub(p, a);
+	double a0 = a[0]; double a1 = a[1]; double a2 = a[2];
+	double b0 = b[0]; double b1 = b[1]; double b2 = b[2];
+	double c0 = c[0]; double c1 = c[1]; double c2 = c[2];
+	double p0 = pp[0]; double p1 = pp[1]; double p2 = pp[2];
 
-	double d00 = mat_inner(v0, v0).data[0];
-	double d01 = mat_inner(v0, v1).data[0];
-	double d11 = mat_inner(v1, v1).data[0];
-	double d20 = mat_inner(v2, v0).data[0];
-	double d21 = mat_inner(v2, v1).data[0];
+	double v00 = b0-a0; double v01 = b1-a1; double v02 = b2-a2;
+	double v10 = c0-a0; double v11 = c1-a1; double v12 = c2-a2;
+	double v20 = p0-a0; double v21 = p1-a1; double v22 = p2-a2;
+
+	double d00 = v00*v00 + v01*v01 + v02*v02; 
+	double d01 = v00*v10 + v01*v11 + v02*v12; 
+	double d11 = v10*v10 + v11*v11 + v12*v12; 
+	double d20 = v20*v00 + v21*v01 + v22*v02; 
+	double d21 = v20*v10 + v21*v11 + v22*v12; 
 	double denom = (d00 * d11) - (d01 * d01);
 
 	double v = ((d11 * d20) - (d01 * d21)) / denom;
 	double w = ((d00 * d21) - (d01 * d20)) / denom;
 	double u = 1.0 - v - w;
-	mat_t p_bary = mat_row(3, u, v, w);
 
-	return p_bary;
+	return mat_row(3, u, v, w);
 }
 
 mat_t inverse_barycentric(mat_t tri, mat_t p)
@@ -47,14 +53,12 @@ mat_t tri_AABB(mat_t tri)
 	mat_t b = mat_get_row(tri, 1);
 	mat_t c = mat_get_row(tri, 2);
 	
-	
 	double min_x = fmin(fmin(a.data[0], b.data[0]), c.data[0]);
 	double min_y = fmin(fmin(a.data[1], b.data[1]), c.data[1]);
 	double min_z = fmin(fmin(a.data[2], b.data[2]), c.data[2]);
 	double max_x = fmax(fmax(a.data[0], b.data[0]), c.data[0]);
 	double max_y = fmax(fmax(a.data[1], b.data[1]), c.data[1]);
 	double max_z = fmax(fmax(a.data[2], b.data[2]), c.data[2]);
-
 
 	double radius_x = (max_x - min_x) * 0.5;
 	double radius_y = (max_y - min_y) * 0.5;
@@ -94,9 +98,9 @@ double point_line_dist(mat_t p, mat_t a, mat_t b)
 	mat_t ap = mat_sub(p, a);
 	mat_t ab = mat_sub(b, a);
 
-	double apap = mat_inner(ap, ap).data[0];
-	double apab = mat_inner(ap, ab).data[0];
-	double abab = mat_inner(ab, ab).data[0];
+	double apap = mat_dot(ap, ap);
+	double apab = mat_dot(ap, ab);
+	double abab = mat_dot(ab, ab);
 
 	return  sqrt(apap - apab * apab / abab);
 }
