@@ -55,12 +55,7 @@ dkms.conf
 
 *.DS_Store
 *.swp
-*.py
-*.bmp
-*.png
 
 makefile
 img/*
-mesh/*
 
-linalg/test.c
